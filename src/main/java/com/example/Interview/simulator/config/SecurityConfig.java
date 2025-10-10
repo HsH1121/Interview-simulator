@@ -1,82 +1,74 @@
 package com.example.Interview.simulator.config;
 
-import com.example.Interview.simulator.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+
+import java.util.List;
 
 @Configuration
-@RequiredArgsConstructor
+@EnableWebSecurity
 public class SecurityConfig {
 
-    private final MemberRepository memberRepository;
-
-    // 사용자 조회 서비스
-    @Bean
-    public UserDetailsService userDetailsService() {
-        // 이메일을 username으로 사용
-        return username -> {
-            Member m = memberRepository.findByEmail(username)
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-            // 기본 ROLE_USER 부여
-            return User.withUsername(m.getEmail())
-                    .password(m.getPasswordHash())
-                    .roles("USER")
-                    .build();
-        };
-    }
-
-    // 패스워드 인코더
+    // 비밀번호 해시
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // DAO 인증 프로바이더
-    @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService uds, PasswordEncoder encoder) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(uds);
-        provider.setPasswordEncoder(encoder);
-        return provider;
-    }
-
-    // AuthenticationManager
+    // AuthenticationManager 주입용
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
-    // 시큐리티 필터 체인
+    // CORS 설정
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173")); // 프런트 주소에 맞춰 수정
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cfg);
+        return source;
+    }
+
+    // 보안 필터 체인
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // REST API를 가정하고 CSRF 비활성화
-        http.csrf(csrf -> csrf.disable());
-
-        // 세션 기반 로그인 사용
-        http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
-
-        // 엔드포인트 권한 설정
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll()
-                .anyRequest().authenticated()
-        );
-
-        // 폼 로그인은 사용하지 않고 직접 로그인 엔드포인트 사용
-        http.formLogin(Customizer.withDefaults()).logout(Customizer.withDefaults());
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .headers(h -> h.frameOptions(f -> f.sameOrigin())) // h2-console 사용 시 필요
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/error", "/favicon.ico",
+                                "/css/**", "/js/**", "/images/**",
+                                "/actuator/health",
+                                "/h2-console/**",
+                                "/api/auth/**",
+                                "/auth/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                );
+        // 폼로그인 필요하면 아래 주석 해제
+        // http.formLogin(Customizer.withDefaults());
         return http.build();
     }
 }

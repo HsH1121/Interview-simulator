@@ -1,0 +1,13 @@
+<header>
+    <div class="brand">Interview Simulator</div>
+    <nav>
+        {{#nickname}}
+            <span style="margin-right:10px;">안녕하세요, {{nickname}}님</span>
+            <!-- 필요 시 로그아웃이 POST라면 폼으로 바꿔서 CSRF 포함 -->
+        {{/nickname}}
+        {{^nickname}}
+            <a class="btn" href="/auth/login">로그인</a>
+            <a class="btn" href="/auth/signup">회원가입</a>
+        {{/nickname}}
+    </nav>
+</header>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <link rel="stylesheet" href="/css/app.css">
+
+    <meta charset="utf-8">
+    <title>로그인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSRF meta -->
+    <meta name="csrf-header" content="{{_csrf.headerName}}">
+    <meta name="csrf-param"  content="{{_csrf.parameterName}}">
+    <meta name="csrf-token"  content="{{_csrf.token}}">
+
+    <style>
+        body { max-width: 480px; margin: 40px auto; font-family: system-ui, Arial; }
+        h1 { font-size: 20px; }
+        form { display: grid; gap: 12px; }
+        label { display: grid; gap: 6px; font-size: 14px; }
+        input { padding: 10px; font-size: 14px; }
+        button { padding: 10px 14px; cursor: pointer; }
+        .msg { margin-top: 14px; white-space: pre-wrap; }
+        .ok { color: #0a7c2f; }
+        .err { color: #b00020; }
+    </style>
+</head>
+<body>
+<h1>로그인</h1>
+
+<form id="loginForm">
+    <label>
+        이메일
+        <input type="email" name="email" required placeholder="you@example.com">
+    </label>
+    <label>
+        비밀번호
+        <input type="password" name="password" required>
+    </label>
+
+    <!-- 전통 폼 대비 히든 CSRF -->
+    <input type="hidden" name="{{_csrf.parameterName}}" value="{{_csrf.token}}">
+
+    <button type="submit">로그인</button>
+</form>
+
+<div id="msg" class="msg"></div>
+
+<p style="margin-top:20px">
+    <a href="/auth/signup">계정이 없으신가요? 회원가입</a>
+</p>
+
+<script src="/js/auth.js"></script>
+<script>
+    // 로그인 폼 핸들러 등록
+    window.Auth.initLogin('/api/auth/login');
+</script>
+</body>
+</html>

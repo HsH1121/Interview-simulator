@@ -1,25 +1,13 @@
 package com.example.Interview.simulator.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// 회원가입 요청 DTO
-@Getter
-@Setter
-public class SignupRequest {
-    @Email
-    @NotBlank
-    @Size(max = 191)
+@Getter @Setter
+@NoArgsConstructor
+public class SignUpRequest {
     private String email;
-
-    @NotBlank
-    @Size(min = 8, max = 100)
     private String password;
-
-    @NotBlank
-    @Size(max = 40)
     private String nickname;
 }
