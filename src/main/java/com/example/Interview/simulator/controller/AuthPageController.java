@@ -26,12 +26,11 @@ public class AuthPageController {
         return "auth/signup";
     }
 
-    // 폼 POST → 서비스 호출 → 리다이렉트
     @PostMapping("/signup")
     public String signupSubmit(@ModelAttribute SignUpRequest req, RedirectAttributes ra) {
         try {
             authService.signUp(req);
-            ra.addFlashAttribute("ok", "가입 완료되었습니다. 로그인해 주세요.");
+            ra.addFlashAttribute("ok", "회원가입이 완료되었습니다.");
             return "redirect:/auth/login";
         } catch (ResponseStatusException e) {
             ra.addFlashAttribute("err", e.getReason());
@@ -45,7 +44,6 @@ public class AuthPageController {
         return "auth/login";
     }
 
-    // 폼 POST → 서비스 호출 → 리다이렉트
     @PostMapping("/login")
     public String loginSubmit(@ModelAttribute LoginRequest req, RedirectAttributes ra) {
         try {
