@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.time.Year;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,68 +13,90 @@ public class MainController {
 
     @GetMapping("/")
     public String main(Model model) {
-        model.addAttribute("stats", List.of(
-                Map.of("number","10,000+","label","누적 면접 연습"),
-                Map.of("number","95%","label","만족도"),
-                Map.of("number","4.8","label","평균 평점"),
-                Map.of("number","24/7","label","언제든 이용")
-        ));
+        // 통계 데이터
+        List<Map<String, String>> stats = Arrays.asList(
+                Map.of("number", "10,000+", "label", "사용자"),
+                Map.of("number", "95%", "label", "만족도"),
+                Map.of("number", "1,000+", "label", "기업 면접"),
+                Map.of("number", "24/7", "label", "언제든지")
+        );
 
-        model.addAttribute("features", List.of(
+        // 기능 데이터
+        List<Map<String, String>> features = Arrays.asList(
                 Map.of(
-                        "title","실전 같은 질문",
-                        "description","지원 분야/난이도에 맞춰 즉석 질문을 생성합니다.",
-                        "icon","<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 10h.01M16 10h.01M9 16h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h3a2 2 0 012 2v14a2 2 0 01-2 2z'/>"
+                        "icon", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z\"></path>",
+                        "title", "AI 면접관",
+                        "description", "실제 면접관처럼 자연스러운 대화와 질문으로 실전 경험을 제공합니다"
                 ),
                 Map.of(
-                        "title","즉각 피드백",
-                        "description","답변 길이, 핵심성, 말버릇 등을 정량 평가합니다.",
-                        "icon","<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 19l-1.5-1.5M11 5l-1.5 1.5M5 13l1.5-1.5M19 13l-1.5-1.5M8 8l8 8'/>"
+                        "icon", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"></path>",
+                        "title", "실시간 피드백",
+                        "description", "답변에 대한 즉시 피드백과 개선점을 제공하여 빠른 성장을 도와드립니다"
                 ),
                 Map.of(
-                        "title","분야별 템플릿",
-                        "description","신입/경력/직무별 시나리오가 준비되어 있어요.",
-                        "icon","<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 10h16M4 14h10'/>"
+                        "icon", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253\"></path>",
+                        "title", "맞춤형 학습",
+                        "description", "개인의 수준과 목표에 맞는 맞춤형 면접 시나리오를 제공합니다"
                 ),
                 Map.of(
-                        "title","녹음·기록",
-                        "description","세션 기록과 개선 히스토리를 자동 저장합니다.",
-                        "icon","<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/>"
+                        "icon", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 10V3L4 14h7v7l9-11h-7z\"></path>",
+                        "title", "언제든 연습",
+                        "description", "24시간 언제든지 원하는 시간에 면접 연습을 시작할 수 있습니다"
                 )
-        ));
+        );
 
-        // 👇 여기! steps에도 icon을 채워 넣습니다.
-        model.addAttribute("steps", List.of(
+        // 단계 데이터
+        List<Map<String, Object>> steps = Arrays.asList(
                 Map.of(
-                        "step","STEP 1",
-                        "title","시나리오 선택",
-                        "description","직무/난이도/언어를 고르면 맞춤 면접을 구성합니다.",
-                        "showArrow", true,
-                        "icon","<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 10h16M4 14h16'/>"
+                        "step", "STEP 01",
+                        "title", "회원가입",
+                        "description", "간단한 정보 입력으로 빠르게 시작하세요",
+                        "icon", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path>",
+                        "showArrow", true
                 ),
                 Map.of(
-                        "step","STEP 2",
-                        "title","면접 진행",
-                        "description","AI 면접관이 질문하고 음성/텍스트로 응답하세요.",
-                        "showArrow", true,
-                        "icon","<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 4l8 8-8 8'/>"
+                        "step", "STEP 02",
+                        "title", "면접 설정",
+                        "description", "직무와 레벨에 맞는 면접을 선택하세요",
+                        "icon", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z\"></path><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M15 12a3 3 0 11-6 0 3 3 0 016 0z\"></path>",
+                        "showArrow", true
                 ),
                 Map.of(
-                        "step","STEP 3",
-                        "title","피드백 확인",
-                        "description","점수·코멘트·개선 가이드를 바로 받아보세요.",
-                        "icon","<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v8m-4-4h8'/>"
+                        "step", "STEP 03",
+                        "title", "실전 연습",
+                        "description", "AI와 함께 실제같은 면접을 경험하세요",
+                        "icon", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 10V3L4 14h7v7l9-11h-7z\"></path>",
+                        "showArrow", false
                 )
-        ));
+        );
 
-        model.addAttribute("testimonials", List.of(
-                Map.of("content","실제 면접 같은 긴장감이 있어 많은 도움이 됐어요.","name","김지원","role","백엔드 신입","stars",List.of(1,1,1,1,1)),
-                Map.of("content","피드백이 구체적이라 답변이 눈에 띄게 좋아졌습니다.","name","박민수","role","프론트엔드 전환","stars",List.of(1,1,1,1,0)),
-                Map.of("content","영어 모의면접도 지원돼서 해외 포지션 준비에 유용해요.","name","이서현","role","데이터 분석","stars",List.of(1,1,1,1,1))
-        ));
+        // 후기 데이터
+        List<Map<String, Object>> testimonials = Arrays.asList(
+                Map.of(
+                        "content", "면접 시뮬레이터 덕분에 실제 면접에서 긴장하지 않고 좋은 결과를 얻을 수 있었어요. 정말 실제 면접관과 대화하는 것 같았습니다!",
+                        "name", "김민수",
+                        "role", "개발자",
+                        "stars", Arrays.asList(1, 2, 3, 4, 5)
+                ),
+                Map.of(
+                        "content", "다양한 질문 유형과 즉시 피드백이 정말 도움이 되었습니다. 특히 답변의 구조화 방법을 배울 수 있어서 좋았어요.",
+                        "name", "이지은",
+                        "role", "마케터",
+                        "stars", Arrays.asList(1, 2, 3, 4, 5)
+                ),
+                Map.of(
+                        "content", "언제든지 연습할 수 있다는 점이 가장 큰 장점이에요. 밤늦게도, 주말에도 면접 연습을 할 수 있어서 정말 편리했습니다.",
+                        "name", "박준영",
+                        "role", "디자이너",
+                        "stars", Arrays.asList(1, 2, 3, 4, 5)
+                )
+        );
 
-        model.addAttribute("year", Year.now().toString());
+        model.addAttribute("stats", stats);
+        model.addAttribute("features", features);
+        model.addAttribute("steps", steps);
+        model.addAttribute("testimonials", testimonials);
+
         return "view/main";
     }
-
 }
