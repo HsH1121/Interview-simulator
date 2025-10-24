@@ -2,7 +2,7 @@ package com.example.Interview.simulator.api;
 
 import com.example.Interview.simulator.dto.LoginRequest;
 import com.example.Interview.simulator.dto.MemberResponse;
-import com.example.Interview.simulator.dto.SignUpRequest;
+import com.example.Interview.simulator.dto.SignupRequest;
 import com.example.Interview.simulator.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +18,8 @@ public class AuthApiController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<MemberResponse> signUp(@RequestBody SignUpRequest req) {
-        return ResponseEntity.ok(authService.signUp(req));
+    public ResponseEntity<MemberResponse> signup(@RequestBody SignupRequest req) {
+        return ResponseEntity.ok(authService.signup(req));
     }
 
     @PostMapping("/login")

@@ -5,8 +5,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "members", indexes = {
-        @Index(name = "uk_members_email", columnList = "email", unique = true)
+@Table(name = "member", indexes = {
+        @Index(name = "uk_member_email", columnList = "email", unique = true),
+        @Index(name = "uk_member_nickname", columnList = "nickname", unique = true)
 })
 @Getter
 @Setter
@@ -25,21 +26,33 @@ public class Member {
     @Column(nullable = false, length = 100)
     private String passwordHash;
 
-    @Column(nullable = false, length = 40)
+    @Column(nullable = false, length = 40, unique = true)
     private String nickname;
 
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private JobCategory jobCategory;
 
+    @Column(nullable = false)
+    private boolean marketingOptIn;
+
+    @Column(nullable = false)
+    private LocalDateTime termsAgreedAt;
+
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+        if (this.email != null) this.email = this.email.toLowerCase();
     }
 
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+        if (this.email != null) this.email = this.email.toLowerCase();
     }
 }

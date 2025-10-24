@@ -1,74 +1,79 @@
 package com.example.Interview.simulator.config;
 
+import com.example.Interview.simulator.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-
-import java.util.List;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest; // ← 핵심
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 비밀번호 해시
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // AuthenticationManager 주입용
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
-
-    // CORS 설정
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173")); // 프런트 주소에 맞춰 수정
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("*"));
-        cfg.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", cfg);
-        return source;
-    }
-
-    // 보안 필터 체인
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .headers(h -> h.frameOptions(f -> f.sameOrigin())) // h2-console 사용 시 필요
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/error", "/favicon.ico",
-                                "/css/**", "/js/**", "/images/**",
-                                "/actuator/health",
-                                "/h2-console/**",
-                                "/api/auth/**",
-                                "/auth/**"
-                        ).permitAll()
+                .authorizeHttpRequests(authz -> authz
+                        // H2 콘솔 & 정적 리소스 허용
+                        .requestMatchers(PathRequest.toH2Console()).permitAll()
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+
+                        // 공개 페이지
+                        .requestMatchers("/", "/error", "/favicon.ico").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/logout", "/auth/signup").permitAll()
+
+                        // 그 외는 인증
                         .anyRequest().authenticated()
-                );
-        // 폼로그인 필요하면 아래 주석 해제
-        // http.formLogin(Customizer.withDefaults());
+                )
+                .formLogin(form -> form
+                        .loginPage("/auth/login")
+                        .loginProcessingUrl("/auth/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/auth/login?error=true")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "XSRF-TOKEN")
+                        .permitAll()
+                )
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        // H2 콘솔과 API는 CSRF 제외 (필요 시)
+                        .ignoringRequestMatchers(
+                                PathRequest.toH2Console(),
+                                request -> request.getRequestURI().startsWith("/api/")
+                        )
+                )
+                // H2 콘솔이 iframe으로 뜨므로 sameOrigin 필요
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+
+    @Bean
+    UserDetailsService userDetailsService(MemberRepository repo) {
+        return username -> repo.findByEmailIgnoreCase(username)
+                .map(m -> org.springframework.security.core.userdetails.User
+                        .withUsername(m.getEmail())
+                        .password(m.getPasswordHash()) // BCrypt 해시 그대로
+                        .roles("USER")
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }
