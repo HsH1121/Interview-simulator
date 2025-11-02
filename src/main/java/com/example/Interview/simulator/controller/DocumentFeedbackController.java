@@ -1,0 +1,16 @@
+package com.example.Interview.simulator.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping("/document-feedback")
+public class DocumentFeedbackController {
+
+    // GET /document-feedback  ->  templates/document-feedback/document-feedback.mustache
+    @GetMapping
+    public String showDocumentFeedbackPage() {
+        return "document-feedback/document-feedback";
+    }
+}

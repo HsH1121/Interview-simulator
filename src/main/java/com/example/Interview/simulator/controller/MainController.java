@@ -17,8 +17,8 @@ public class MainController {
         List<Map<String, String>> stats = Arrays.asList(
                 Map.of("number", "10,000+", "label", "사용자"),
                 Map.of("number", "95%", "label", "만족도"),
-                Map.of("number", "1,000+", "label", "기업 면접"),
-                Map.of("number", "24/7", "label", "언제든지")
+                Map.of("number", "4.8", "label", "평균 평점"),
+                Map.of("number", "24/7", "label", "언제든 이용")
         );
 
         // 기능 데이터

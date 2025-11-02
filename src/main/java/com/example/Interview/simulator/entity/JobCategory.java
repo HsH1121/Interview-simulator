@@ -12,7 +12,7 @@ public enum JobCategory {
             case "finance" -> FINANCE;
             case "hr" -> HR;
             case "consulting" -> CONSULTING;
-            case "design" -> DESIGN;
+            case "design" -> MARKETING;
             default -> OTHER;
         };
     }
