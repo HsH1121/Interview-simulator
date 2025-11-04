@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/document-feedback")
 public class DocumentFeedbackController {
 
-    // GET /document-feedback  ->  templates/document-feedback/document-feedback.mustache
     @GetMapping
     public String showDocumentFeedbackPage() {
         return "document-feedback/document-feedback";

@@ -1,6 +1,7 @@
 package com.example.Interview.simulator.config;
 
 import com.example.Interview.simulator.repository.MemberRepository;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest; // ← 핵심
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -43,21 +44,23 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
+                        // 반드시 POST로만 처리 (기본도 POST이지만 명시)
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout", "POST"))
                         .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "XSRF-TOKEN")
                         .permitAll()
                 )
                 .csrf(csrf -> csrf
+                        // JS에서도 토큰 읽을 수 있게 HttpOnly=false
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        // H2 콘솔과 API는 CSRF 제외 (필요 시)
+                        // H2 콘솔 / API는 CSRF 제외
                         .ignoringRequestMatchers(
                                 PathRequest.toH2Console(),
                                 request -> request.getRequestURI().startsWith("/api/")
                         )
                 )
-                // H2 콘솔이 iframe으로 뜨므로 sameOrigin 필요
+                // H2 콘솔 iframe 허용
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
@@ -71,7 +74,7 @@ public class SecurityConfig {
         return username -> repo.findByEmailIgnoreCase(username)
                 .map(m -> org.springframework.security.core.userdetails.User
                         .withUsername(m.getEmail())
-                        .password(m.getPasswordHash()) // BCrypt 해시 그대로
+                        .password(m.getPasswordHash())
                         .roles("USER")
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException(username));
