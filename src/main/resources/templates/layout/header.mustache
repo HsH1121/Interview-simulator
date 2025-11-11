@@ -19,7 +19,7 @@
 <header class="fixed top-0 inset-x-0 z-50 bg-white border-b border-gray-200/60 shadow-sm">
     <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
         <!-- 기존: <div class="flex items-center space-x-3 fade-in"> ... </div> -->
-        <a href="/" class="flex items-center space-x-3 fade-in group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg"
+        <a href="/" class="flex items-center space-x-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg"
            aria-label="홈으로 이동">
             <div class="w-10 h-10 gradient-icon rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -30,10 +30,10 @@
             <span class="text-2xl font-bold text-gray-800 group-hover:underline">면접 시뮬레이터</span>
         </a>
 
-        <div class="hidden md:flex items-center space-x-8 fade-in">
+        <div class="hidden md:flex items-center space-x-8">
             {{#isLoggedIn}}
                 <span class="text-gray-700">{{nickname}}님 환영합니다.</span>
-                <a href="/mypage" class="text-gray-600 hover:text-gray-800 transition-colors">마이페이지</a>
+                <a href="/myPage" class="text-gray-600 hover:text-gray-800 transition-colors">마이페이지</a>
                 <form action="/auth/logout" method="post" class="inline">
                     <input type="hidden" name="{{_csrf.parameterName}}" value="{{_csrf.token}}">
                     <button type="submit" class="text-gray-600 hover:text-gray-800 transition-colors">로그아웃</button>
